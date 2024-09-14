@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>数据同步</title>
+    <link rel="icon" href="logo.ico" type="image/x-icon" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f0f0f0; /* 添加浅灰色背景 */
+      }
+      h1 {
+        color: #333;
+      }
+      label {
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+      }
+      select,
+      input {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      .error {
+        color: red;
+        font-size: 12px;
+        margin-top: -10px;
+        margin-bottom: 10px;
+      }
+      button {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>选择选项</h1>
+    <label for="fromDb">从:</label>
+    <select id="fromDb" required onchange="clearError('fromDbError')">
+      <option value="" selected disabled>请选择</option>
+      <!-- <option value="1">dev</option>
+      <option value="2">sit</option>
+      <option value="3">pro</option>
+      <option value="7">kol_pro</option> -->
+    </select>
+    <div id="fromDbError" class="error"></div>
+
+    <label for="toDb">同步到:</label>
+    <select id="toDb" required onchange="clearError('toDbError')">
+      <option value="" selected disabled>请选择</option>
+      <!-- <option value="1">dev</option>
+      <option value="2">sit</option>
+      <option value="3">pro</option>
+      <option value="7">kol_pro</option> -->
+    </select>
+    <div id="toDbError" class="error"></div>
+
+    <label for="asyncType">同步类型:</label>
+    <select id="asyncType" required onchange="clearError('asyncTypeError')">
+      <option value="" selected disabled>请选择</option>
+      <!-- <option value="Menu">菜单</option>
+      <option value="TableHeader">表头</option>
+      <option value="CustomBase">自定义配置</option>
+      <option value="DbSource">数据源</option>
+      <option value="ErpaBase">系统配置</option>
+      <option value="SqlConfig">低代码SQL</option> -->
+    </select>
+    <div id="asyncTypeError" class="error"></div>
+
+    <label for="asyncCode">同步code:</label>
+    <input
+      id="asyncCode"
+      placeholder="请输入同步Code（多个用逗号拼接，兼容全角字符）"
+      required
+      oninput="clearError('asyncCodeError')"
+    />
+    <div id="asyncCodeError" class="error"></div>
+
+    <button onclick="submit()">提交</button>
+
+    <script>
+      const vscode = acquireVsCodeApi();
+
+      // 获取下拉框数据源
+      const dropdownData = "<!-- DROPDOWN_DATA -->";
+      // 填充下拉框数据
+      function populateDropdown(id, data) {
+        const select = document.getElementById(id);
+        data.forEach((item) => {
+          const option = document.createElement("option");
+          option.value = item.id;
+          option.text = item.title;
+          select.appendChild(option);
+        });
+      }
+
+      populateDropdown("fromDb", dropdownData.databaseConfigs);
+      populateDropdown("toDb", dropdownData.databaseConfigs);
+      populateDropdown("asyncType", dropdownData.asyncTypeConfigs);
+
+      function clearError(elementId) {
+        document.getElementById(elementId).textContent = "";
+      }
+
+      function submit() {
+        // 清除之前的错误信息
+        clearError("fromDbError");
+        clearError("toDbError");
+        clearError("asyncTypeError");
+        clearError("asyncCodeError");
+
+        const fromDb = document.getElementById("fromDb");
+        const toDb = document.getElementById("toDb");
+        const asyncType = document.getElementById("asyncType");
+        const asyncCode = document.getElementById("asyncCode");
+
+        let hasError = false;
+
+        if (!fromDb.value) {
+          document.getElementById("fromDbError").textContent =
+            "请选择一个 '从' 选项";
+          hasError = true;
+        }
+        if (!toDb.value) {
+          document.getElementById("toDbError").textContent =
+            "请选择一个 '同步到' 选项";
+          hasError = true;
+        }
+        if (!asyncType.value) {
+          document.getElementById("asyncTypeError").textContent =
+            "请选择一个 '同步类型' 选项";
+          hasError = true;
+        }
+        if (!asyncCode.value) {
+          document.getElementById("asyncCodeError").textContent =
+            "请输入同步code";
+          hasError = true;
+        }
+
+        if (hasError) {
+          return;
+        }
+
+        vscode.postMessage({
+          command: "submit",
+          fromDbId: fromDb.value,
+          fromDbSelect: fromDb.options[fromDb.selectedIndex].text,
+          toDbId: toDb.value,
+          toDbSelect: toDb.options[toDb.selectedIndex].text,
+          asyncTypeId: asyncType.value,
+          asyncTypeSelect: asyncType.options[asyncType.selectedIndex].text,
+          asyncCode: asyncCode.value,
+        });
+      }
+    </script>
+  </body>
+</html>

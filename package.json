@@ -1,0 +1,42 @@
+{
+  "name": "jinjia-data-async",
+  "displayName": "jinjiaDataAsync",
+  "description": "用于缙嘉数据同步,支持菜单、表头、自定义配置、数据源、系统配置、低代码sql的同步",
+  "version": "0.0.2",
+  "publisher": "xiangzheng",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "DataAsync",
+        "title": "缙嘉数据同步"
+      }
+    ]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.7",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.93.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.9.1"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
+    "qs": "^6.13.0"
+  }
+}
